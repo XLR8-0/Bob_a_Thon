@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+    <env:Body>
+        <wd:Change_Personal_Information_Response xmlns:wd="urn:com.workday/bsvc" wd:version="v46.0">
+            <wd:Personal_Information_Change_Event_Reference>
+                <wd:ID wd:type="WID">cde9b180312c1000b6de497edf430000</wd:ID>
+            </wd:Personal_Information_Change_Event_Reference>
+            <wd:Personal_Information_Data>
+                <wd:Date_of_Birth>1977-05-07</wd:Date_of_Birth>
+            </wd:Personal_Information_Data>
+        </wd:Change_Personal_Information_Response>
+    </env:Body>
+</env:Envelope>
+
+<!-- Made with Bob -->

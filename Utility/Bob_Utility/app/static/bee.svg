@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+  <defs>
+    <linearGradient id="blueGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f62fe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0043ce;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Bee body -->
+  <ellipse cx="12" cy="13" rx="5" ry="7" fill="url(#blueGrad2)"/>
+  <!-- Stripes -->
+  <rect x="7" y="10" width="10" height="1.5" fill="#001d6c" opacity="0.6"/>
+  <rect x="7" y="13" width="10" height="1.5" fill="#001d6c" opacity="0.6"/>
+  <rect x="7" y="16" width="10" height="1.5" fill="#001d6c" opacity="0.6"/>
+  <!-- Wings -->
+  <ellipse cx="9" cy="9" rx="3" ry="4" fill="url(#blueGrad2)" opacity="0.4"/>
+  <ellipse cx="15" cy="9" rx="3" ry="4" fill="url(#blueGrad2)" opacity="0.4"/>
+  <!-- Head -->
+  <circle cx="12" cy="7" r="2.5" fill="url(#blueGrad2)"/>
+</svg>
+
+<!-- Made with Bob -->

@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Payload Utility Toolkit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(148, 163, 184, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 10px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--bg-secondary);
+        }
+
+        .tab {
+            padding: 14px 28px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .tab:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Tool Section */
+        .tool-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .tool-section:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .tool-section h3 {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Input Elements */
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            resize: vertical;
+        }
+
+        textarea {
+            min-height: 280px;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: var(--bg-primary);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-copy {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-copy:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Result Section */
+        .result-section {
+            margin-top: 30px;
+            padding: 24px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 2px solid var(--border);
+            display: none;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .result-header h3 {
+            font-size: 1.2em;
+            color: var(--primary-light);
+        }
+
+        .result-content {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            white-space: pre-wrap;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 500px;
+            overflow: auto;
+            line-height: 1.6;
+        }
+
+        /* Status Messages */
+        .status {
+            padding: 14px 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 20px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 968px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            color: var(--text-primary);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: none;
+            animation: toastIn 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Feature Badge */
+        .feature-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-light);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        /* Links */
+        .links {
+            margin-top: 30px;
+            padding: 24px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .links a {
+            color: var(--primary-light);
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .links a:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛠️ Enterprise Payload Utility Toolkit</h1>
+            <p>Secure, Local-First Developer Tools</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('xml-basic')">📝 XML Basic</button>
+            <button class="tab" onclick="switchTab('xml-advanced')">🔧 XML Advanced</button>
+            <button class="tab" onclick="switchTab('json-basic')">📋 JSON Basic</button>
+            <button class="tab" onclick="switchTab('json-advanced')">⚙️ JSON Advanced</button>
+            <button class="tab" onclick="switchTab('docs')">📚 Documentation</button>
+        </div>
+
+        <!-- XML Basic Tab -->
+        <div id="xml-basic" class="tab-content active">
+            <div class="tool-section">
+                <h3>📝 XML Format & Validate</h3>
+                <textarea id="xmlInput" placeholder="Paste your XML here...">
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <message>Hello World</message>
+    <data>
+        <item id="1">First Item</item>
+        <item id="2">Second Item</item>
+    </data>
+</root></textarea>
+                
+                <div class="button-group">
+                    <button class="btn-primary" onclick="formatXML()">✨ Format</button>
+                    <button class="btn-primary" onclick="validateXML()">✓ Validate</button>
+                    <button class="btn-primary" onclick="xmlToJSON()">🔄 Convert to JSON</button>
+                    <button class="btn-secondary" onclick="clearInput('xmlInput')">🗑️ Clear</button>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing...</p>
+            </div>
+            
+            <div class="result-section" id="resultSection">
+                <div id="statusMessage"></div>
+                <div class="result-header">
+                    <h3>Result:</h3>
+                    <button class="btn-copy" onclick="copyResult()">📋 Copy</button>
+                </div>
+                <div class="result-content" id="resultContent"></div>
+            </div>
+        </div>
+
+        <!-- XML Advanced Tab -->
+        <div id="xml-advanced" class="tab-content">
+            <div class="tool-section">
+                <h3>🔍 XPath Query <span class="feature-badge">Enhanced</span></h3>
+                <textarea id="xmlXPathInput" placeholder="Paste your XML here...">
+<?xml version="1.0"?>
+<catalog>
+    <book id="1">
+        <title>XML Developer's Guide</title>
+        <author>John Doe</author>
+        <price>44.95</price>
+        <publish_date>1977-05-07</publish_date>
+    </book>
+    <book id="2">
+        <title>JSON Handbook</title>
+        <author>Jane Smith</author>
+        <price>39.95</price>
+        <publish_date>2023-01-15</publish_date>
+    </book>
+</catalog></textarea>
+                
+                <div class="input-group">
+                    <label>XPath Expression:</label>
+                    <input type="text" id="xpathQuery" placeholder="e.g., //book/title" value="//book/title">
+                </div>
+
+                <div class="input-group">
+                    <label>🎯 Find XPath by Value (New Feature):</label>
+                    <input type="text" id="xpathValueSearch" placeholder="Enter a value to find its XPath (e.g., 1977-05-07)">
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-primary" onclick="executeXPath()">🔍 Execute XPath</button>
+                    <button class="btn-success" onclick="findXPathByValue()">🎯 Find XPath by Value</button>
+                    <button class="btn-primary" onclick="getXMLStructure()">🌳 View Structure</button>
+                    <button class="btn-secondary" onclick="clearInput('xmlXPathInput')">🗑️ Clear</button>
+                </div>
+            </div>
+            
+            <div class="tool-section">
+                <h3>🔄 XML Comparison</h3>
+                <div class="grid-2">
+                    <div>
+                        <label>XML 1:</label>
+                        <textarea id="xml1" placeholder="First XML..."><root><item>A</item></root></textarea>
+                    </div>
+                    <div>
+                        <label>XML 2:</label>
+                        <textarea id="xml2" placeholder="Second XML..."><root><item>B</item></root></textarea>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="compareXML()">🔄 Compare</button>
+                </div>
+            </div>
+            
+            <div class="result-section" id="resultSection">
+                <div id="statusMessage"></div>
+                <div class="result-header">
+                    <h3>Result:</h3>
+                    <button class="btn-copy" onclick="copyResult()">📋 Copy</button>
+                </div>
+                <div class="result-content" id="resultContent"></div>
+            </div>
+        </div>
+
+        <!-- JSON Basic Tab -->
+        <div id="json-basic" class="tab-content">
+            <div class="tool-section">
+                <h3>📋 JSON Format & Validate</h3>
+                <textarea id="jsonInput" placeholder="Paste your JSON here...">
+{
+    "name": "John Doe",
+    "age": 30,
+    "email": "john@example.com",
+    "address": {
+        "city": "New York",
+        "zip": "10001"
+    },
+    "hobbies": ["reading", "coding", "gaming"]
+}</textarea>
+                
+                <div class="button-group">
+                    <button class="btn-primary" onclick="formatJSON()">✨ Format</button>
+                    <button class="btn-primary" onclick="validateJSON()">✓ Validate</button>
+                    <button class="btn-primary" onclick="minifyJSON()">📦 Minify</button>
+                    <button class="btn-secondary" onclick="clearInput('jsonInput')">🗑️ Clear</button>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing...</p>
+            </div>
+            
+            <div class="result-section" id="resultSection">
+                <div id="statusMessage"></div>
+                <div class="result-header">
+                    <h3>Result:</h3>
+                    <button class="btn-copy" onclick="copyResult()">📋 Copy</button>
+                </div>
+                <div class="result-content" id="resultContent"></div>
+            </div>
+        </div>
+
+        <!-- JSON Advanced Tab -->
+        <div id="json-advanced" class="tab-content">
+            <div class="tool-section">
+                <h3>⚙️ JSONPath Query</h3>
+                <textarea id="jsonPathInput" placeholder="Paste your JSON here...">
+{
+    "store": {
+        "book": [
+            {"title": "Book 1", "price": 10.99},
+            {"title": "Book 2", "price": 8.99},
+            {"title": "Book 3", "price": 12.99}
+        ]
+    }
+}</textarea>
+                
+                <div class="input-group">
+                    <label>JSONPath Expression:</label>
+                    <input type="text" id="jsonpathQuery" placeholder="e.g., $.store.book[*].title" value="$.store.book[*].title">
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-primary" onclick="executeJSONPath()">🔍 Execute JSONPath</button>
+                    <button class="btn-primary" onclick="generateJSONSchema()">📐 Generate Schema</button>
+                    <button class="btn-primary" onclick="getJSONStatistics()">📊 Statistics</button>
+                    <button class="btn-secondary" onclick="clearInput('jsonPathInput')">🗑️ Clear</button>
+                </div>
+            </div>
+            
+            <div class="tool-section">
+                <h3>🔄 JSON Comparison</h3>
+                <div class="grid-2">
+                    <div>
+                        <label>JSON 1:</label>
+                        <textarea id="json1" placeholder="First JSON...">{"name":"John","age":30}</textarea>
+                    </div>
+                    <div>
+                        <label>JSON 2:</label>
+                        <textarea id="json2" placeholder="Second JSON...">{"name":"Jane","age":25}</textarea>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="compareJSON()">🔄 Compare</button>
+                    <button class="btn-primary" onclick="flattenJSON()">📊 Flatten JSON 1</button>
+                </div>
+            </div>
+            
+            <div class="result-section" id="resultSection">
+                <div id="statusMessage"></div>
+                <div class="result-header">
+                    <h3>Result:</h3>
+                    <button class="btn-copy" onclick="copyResult()">📋 Copy</button>
+                </div>
+                <div class="result-content" id="resultContent"></div>
+            </div>
+        </div>
+
+        <!-- Documentation Tab -->
+        <div id="docs" class="tab-content">
+            <div class="tool-section">
+                <h3>📚 Available Features</h3>
+                
+                <h4 style="color: var(--primary-light); margin-top: 20px;">XML Toolkit (15 endpoints)</h4>
+                <ul style="line-height: 2; margin-left: 20px;">
+                    <li>✨ Format & beautify XML</li>
+                    <li>✓ Validate XML syntax</li>
+                    <li>🔍 Execute XPath queries</li>
+                    <li>🎯 Find XPath by value (NEW)</li>
+                    <li>🌳 Explore XML tree structure</li>
+                    <li>🔄 Compare two XML documents</li>
+                    <li>📐 Validate against XSD schema</li>
+                    <li>🔄 Convert XML ↔ JSON/YAML/CSV</li>
+                </ul>
+                
+                <h4 style="color: var(--primary-light); margin-top: 20px;">JSON Toolkit (14 endpoints)</h4>
+                <ul style="line-height: 2; margin-left: 20px;">
+                    <li>✨ Format & beautify JSON</li>
+                    <li>✓ Validate JSON syntax</li>
+                    <li>📦 Minify JSON</li>
+                    <li>🔍 Execute JSONPath queries</li>
+                    <li>📐 Generate JSON Schema</li>
+                    <li>✓ Validate against schema</li>
+                    <li>🔄 Compare two JSON documents</li>
+                    <li>📊 Get document statistics</li>
+                    <li>🗂️ Flatten/unflatten structure</li>
+                </ul>
+                
+                <div class="links">
+                    <a href="/docs" target="_blank">📚 Full API Documentation</a>
+                    <a href="/redoc" target="_blank">📖 ReDoc</a>
+                    <a href="/health" target="_blank">💚 Health Check</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Tab switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.result-section').forEach(section => {
+                section.classList.remove('show');
+            });
+        }
+        
+        // Utility functions
+        function showLoading() {
+            document.querySelectorAll('.loading').forEach(el => el.classList.add('show'));
+            document.querySelectorAll('.result-section').forEach(el => el.classList.remove('show'));
+        }
+        
+        function hideLoading() {
+            document.querySelectorAll('.loading').forEach(el => el.classList.remove('show'));
+        }
+        
+        function showResult(success, message, content) {
+            hideLoading();
+            const resultSection = document.querySelector('.tab-content.active .result-section');
+            const statusMessage = resultSection.querySelector('#statusMessage');
+            const resultContent = resultSection.querySelector('#resultContent');
+            
+            resultSection.classList.add('show');
+            statusMessage.innerHTML = `<div class="status ${success ? 'success' : 'error'}">${message}</div>`;
+            resultContent.textContent = typeof content === 'object' ? JSON.stringify(content, null, 2) : content;
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        function clearInput(id) {
+            document.getElementById(id).value = '';
+            document.querySelectorAll('.result-section').forEach(el => el.classList.remove('show'));
+        }
+        
+        function copyResult() {
+            const activeTab = document.querySelector('.tab-content.active');
+            const resultContent = activeTab.querySelector('#resultContent').textContent;
+            navigator.clipboard.writeText(resultContent).then(() => {
+                showToast('✓ Copied to clipboard!');
+            }).catch(err => {
+                showToast('✗ Failed to copy');
+            });
+        }
+        
+        // XML Functions
+        async function formatXML() {
+            const xmlInput = document.getElementById('xmlInput').value;
+            if (!xmlInput.trim()) {
+                showToast('⚠️ Please enter some XML content');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/format', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        xml_content: xmlInput,
+                        indent: 2,
+                        encoding: 'utf-8',
+                        xml_declaration: true
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showResult(true, '✓ XML formatted successfully!', data.formatted_xml);
+                } else {
+                    showResult(false, '✗ Error: ' + (data.detail?.message || data.detail), data);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function validateXML() {
+            const xmlInput = document.getElementById('xmlInput').value;
+            if (!xmlInput.trim()) {
+                showToast('⚠️ Please enter some XML content');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/validate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({xml_content: xmlInput})
+                });
+                
+                const data = await response.json();
+                if (data.is_valid) {
+                    showResult(true, '✓ XML is valid!', 'Your XML is well-formed and valid.');
+                } else {
+                    showResult(false, '✗ XML is invalid', data.error || 'XML validation failed');
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function xmlToJSON() {
+            const xmlInput = document.getElementById('xmlInput').value;
+            if (!xmlInput.trim()) {
+                showToast('⚠️ Please enter some XML content');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/convert/to-json', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({xml_content: xmlInput})
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showResult(true, '✓ Converted to JSON!', data.json_content);
+                } else {
+                    showResult(false, '✗ Conversion failed', data.detail);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function executeXPath() {
+            const xmlInput = document.getElementById('xmlXPathInput').value;
+            const xpathQuery = document.getElementById('xpathQuery').value;
+            
+            if (!xmlInput.trim() || !xpathQuery.trim()) {
+                showToast('⚠️ Please enter both XML content and XPath query');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/xpath/execute', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        xml_content: xmlInput,
+                        xpath_query: xpathQuery
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showResult(true, `✓ Found ${data.match_count} matches`, data.matches);
+                } else {
+                    showResult(false, '✗ XPath execution failed', data.detail);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+
+        async function findXPathByValue() {
+            const xmlInput = document.getElementById('xmlXPathInput').value;
+            const searchValue = document.getElementById('xpathValueSearch').value;
+            
+            if (!xmlInput.trim() || !searchValue.trim()) {
+                showToast('⚠️ Please enter both XML content and search value');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/xpath/find-by-value', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        xml_content: xmlInput,
+                        search_value: searchValue
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok && data.matches && data.matches.length > 0) {
+                    // Format output with both XPath formats
+                    let output = `Found ${data.match_count} match(es) for value: "${searchValue}"\n\n`;
+                    data.matches.forEach((match, idx) => {
+                        output += `Match ${idx + 1}:\n`;
+                        output += `  Standard XPath: ${match.xpath}\n`;
+                        output += `  Local-name XPath: ${match.xpath_local_name}\n`;
+                        output += `  Element: <${match.tag}>\n`;
+                        output += `  Value: ${match.text}\n\n`;
+                    });
+                    showResult(true, `✓ Found ${data.match_count} XPath(s) for value "${searchValue}"`, output);
+                } else {
+                    showResult(false, '✗ No matches found', `No XPath found for value: ${searchValue}`);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function getXMLStructure() {
+            const xmlInput = document.getElementById('xmlXPathInput').value;
+            if (!xmlInput.trim()) {
+                showToast('⚠️ Please enter some XML content');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/tree/structure', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({xml_content: xmlInput})
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showResult(true, '✓ XML structure retrieved', data.structure);
+                } else {
+                    showResult(false, '✗ Failed to get structure', data.detail);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function compareXML() {
+            const xml1 = document.getElementById('xml1').value;
+            const xml2 = document.getElementById('xml2').value;
+            
+            if (!xml1.trim() || !xml2.trim()) {
+                showToast('⚠️ Please enter both XML documents');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/diff/compare', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({xml1, xml2})
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    const msg = data.identical ? '✓ XMLs are identical' : `✗ Found ${data.summary.total_changes} differences`;
+                    showResult(data.identical, msg, data);
+                } else {
+                    showResult(false, '✗ Comparison failed', data.detail);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        // JSON Functions
+        async function formatJSON() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            if (!jsonInput.trim()) {
+                showToast('⚠️ Please enter some JSON content');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/format', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        json_content: jsonInput,
+                        indent: 2,
+                        sort_keys: false
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showResult(true, '✓ JSON formatted successfully!', data.formatted_json);
+                } else {
+                    showResult(false, '✗ Error: ' + (data.detail || 'Unknown error'), data);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function validateJSON() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            if (!jsonInput.trim()) {
+                showToast('⚠️ Please enter some JSON content');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/validate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({json_content: jsonInput})
+                });
+                
+                const data = await response.json();
+                if (data.is_valid) {
+                    showResult(true, '✓ JSON is valid!', 'Your JSON is well-formed and valid.');
+                } else {
+                    showResult(false, '✗ JSON is invalid', data.error || 'JSON validation failed');
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function minifyJSON() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            if (!jsonInput.trim()) {
+                showToast('⚠️ Please enter some JSON content');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/minify', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({json_content: jsonInput})
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showResult(true, '✓ JSON minified successfully!', data.minified_json);
+                } else {
+                    showResult(false, '✗ Error: ' + (data.detail || 'Unknown error'), data);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function executeJSONPath() {
+            const jsonInput = document.getElementById('jsonPathInput').value;
+            const jsonpathQuery = document.getElementById('jsonpathQuery').value;
+            
+            if (!jsonInput.trim() || !jsonpathQuery.trim()) {
+                showToast('⚠️ Please enter both JSON content and JSONPath query');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/jsonpath/execute', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        json_content: jsonInput,
+                        jsonpath_query: jsonpathQuery
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showResult(true, `✓ Found ${data.match_count} matches`, data.matches);
+                } else {
+                    showResult(false, '✗ JSONPath execution failed', data.detail);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function generateJSONSchema() {
+            const jsonInput = document.getElementById('jsonPathInput').value;
+            if (!jsonInput.trim()) {
+                showToast('⚠️ Please enter some JSON content');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/schema/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        json_content: jsonInput,
+                        title: 'Generated Schema'
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showResult(true, '✓ Schema generated successfully!', data.schema);
+                } else {
+                    showResult(false, '✗ Schema generation failed', data.detail);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function getJSONStatistics() {
+            const jsonInput = document.getElementById('jsonPathInput').value;
+            if (!jsonInput.trim()) {
+                showToast('⚠️ Please enter some JSON content');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/explore/statistics', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({json_content: jsonInput})
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showResult(true, '✓ Statistics retrieved', data.statistics);
+                } else {
+                    showResult(false, '✗ Failed to get statistics', data.detail);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function compareJSON() {
+            const json1 = document.getElementById('json1').value;
+            const json2 = document.getElementById('json2').value;
+            
+            if (!json1.trim() || !json2.trim()) {
+                showToast('⚠️ Please enter both JSON documents');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/diff/compare', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({json1, json2})
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    const msg = data.identical ? '✓ JSONs are identical' : `✗ Found ${data.summary.total_changes} differences`;
+                    showResult(data.identical, msg, data);
+                } else {
+                    showResult(false, '✗ Comparison failed', data.detail);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+        
+        async function flattenJSON() {
+            const json1 = document.getElementById('json1').value;
+            if (!json1.trim()) {
+                showToast('⚠️ Please enter JSON content');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/flatten', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        json_content: json1,
+                        separator: '.'
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showResult(true, '✓ JSON flattened successfully!', data.flattened);
+                } else {
+                    showResult(false, '✗ Flatten failed', data.detail);
+                }
+            } catch (error) {
+                showResult(false, '✗ Error: ' + error.message, error.toString());
+            }
+        }
+    </script>
+</body>
+</html>

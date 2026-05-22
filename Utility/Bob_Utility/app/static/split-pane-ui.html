@@ -1,0 +1,2354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Payload Utility Toolkit</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon_toolkit.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+         :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #14b8a6;
+            --bg-main: #f8fafc;
+            --bg-sidebar: #ffffff;
+            --bg-panel: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* Header */
+        
+        .header {
+            background: var(--bg-sidebar);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        /* Main Layout */
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 110px);
+        }
+        /* Sidebar */
+        
+        .sidebar {
+            width: 220px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-section {
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .sidebar-title {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .sidebar-title:hover {
+            background: #f8fafc;
+            color: var(--text-primary);
+        }
+        
+        .sidebar-title::after {
+            content: '▼';
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+        
+        .sidebar-title.collapsed::after {
+            transform: rotate(-90deg);
+        }
+        
+        .sidebar-items {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 1;
+        }
+        
+        .sidebar-items.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+        
+        .sidebar-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-item:hover {
+            background: #f1f5f9;
+        }
+        
+        .sidebar-item.active {
+            background: #e0f2fe;
+            color: var(--primary);
+            font-weight: 500;
+            border-left: 3px solid var(--primary);
+        }
+        /* Content Area */
+        
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        /* Toolbar */
+        
+        .toolbar {
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn:hover {
+            background: #f8fafc;
+            border-color: var(--border-dark);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background: #f1f5f9;
+        }
+        /* XPath Input Bar */
+        
+        .xpath-bar {
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .xpath-bar input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .xpath-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+        /* Split Panes */
+        
+        .split-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-panel);
+            overflow: hidden;
+        }
+        
+        .pane-header {
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pane-content {
+            flex: 1;
+            overflow: auto;
+            padding: 0;
+        }
+        
+        textarea,
+        .result-display {
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding: 20px;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: none;
+            background: white;
+        }
+        
+        textarea:focus {
+            outline: none;
+        }
+        
+        .result-display {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            line-height: 1.6;
+            overflow: auto;
+            height: 100%;
+        }
+        
+        .result-display.json {
+            color: #d4d4d4;
+        }
+        /* Code highlighting styles */
+        
+        .result-metadata {
+            background: #2d2d2d;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-left: 3px solid #0ea5e9;
+            border-radius: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.8;
+        }
+        
+        .result-metadata-line {
+            margin: 4px 0;
+            color: #a0a0a0;
+        }
+        
+        .result-metadata-label {
+            color: #9cdcfe;
+            font-weight: 500;
+        }
+        
+        .result-metadata-value {
+            color: #ce9178;
+        }
+        
+        .result-metadata-value.success {
+            color: #4ec9b0;
+        }
+        
+        .result-metadata-value.high {
+            color: #4ec9b0;
+        }
+        
+        .result-code-block {
+            background: #1e1e1e;
+            padding: 16px;
+            border-radius: 4px;
+            border: 1px solid #3e3e3e;
+            margin-top: 8px;
+        }
+        
+        .result-code-title {
+            color: #569cd6;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .result-code {
+            color: #ce9178;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        /* Syntax highlighting for different languages */
+        
+        .syntax-string {
+            color: #ce9178;
+        }
+        
+        .syntax-number {
+            color: #b5cea8;
+        }
+        
+        .syntax-boolean {
+            color: #569cd6;
+        }
+        
+        .syntax-null {
+            color: #569cd6;
+        }
+        
+        .syntax-key {
+            color: #9cdcfe;
+        }
+        
+        .syntax-bracket {
+            color: #ffd700;
+        }
+        
+        .syntax-tag {
+            color: #4ec9b0;
+        }
+        
+        .syntax-attribute {
+            color: #9cdcfe;
+        }
+        
+        .syntax-comment {
+            color: #6a9955;
+            font-style: italic;
+        }
+        
+        .syntax-regex {
+            color: #d16969;
+        }
+        /* Resizer */
+        
+        .resizer {
+            width: 4px;
+            background: var(--border);
+            cursor: col-resize;
+            transition: background 0.2s;
+        }
+        
+        .resizer:hover {
+            background: var(--primary);
+        }
+        /* Loading */
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        
+        .loading-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        /* Toast */
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: white;
+            padding: 14px 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            display: none;
+            animation: slideIn 0.3s ease-out;
+            z-index: 1001;
+        }
+        
+        .toast.show {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+        
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+        /* Scrollbar */
+        
+         ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Copy Button in Pane Header */
+        
+        .copy-btn {
+            padding: 4px 12px;
+            font-size: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+        /* Footer */
+        
+        .footer {
+            background: var(--bg-sidebar);
+            border-top: 1px solid var(--border);
+            padding: 12px 24px 0px 24px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .ibm-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .ibm-letter {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%);
+            color: white;
+            border-radius: 3px;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 0 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>Enterprise Payload Utility Toolkit</h1>
+        <div class="header-actions">
+            <span class="status-badge">● Online</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title collapsed" onclick="toggleSection(this)">XML Tools</div>
+                <div class="sidebar-items collapsed">
+                    <div class="sidebar-item active" onclick="switchTool('xml-basic')">📝 XML Formatter</div>
+                    <div class="sidebar-item" onclick="switchTool('xml-xpath')">🔍 XPath Finder</div>
+                    <div class="sidebar-item" onclick="switchTool('xml-tree')">🌳 Tree Explorer</div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title collapsed" onclick="toggleSection(this)">JSON Tools</div>
+                <div class="sidebar-items collapsed">
+                    <div class="sidebar-item" onclick="switchTool('json-basic')">📋 JSON Formatter</div>
+                    <div class="sidebar-item" onclick="switchTool('json-path')">🔍 JSONPath</div>
+                    <!--<div class="sidebar-item" onclick="switchTool('json-schema')">📐 Schema Generator</div>-->
+                    <div class="sidebar-item" onclick="switchTool('json-diff')">🔄 JSON Diff</div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title collapsed" onclick="toggleSection(this)">Regex Tools</div>
+                <div class="sidebar-items collapsed">
+                    <div class="sidebar-item" onclick="switchTool('regex-test')">🧪 Regex Tester</div>
+                    <div class="sidebar-item" onclick="switchTool('regex-explain')">📖 Explain Pattern</div>
+                    <div class="sidebar-item" onclick="switchTool('regex-generate')">🔧 Generate Pattern</div>
+                    <div class="sidebar-item" onclick="switchTool('regex-common')">📚 Common Patterns</div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title collapsed" onclick="toggleSection(this)">Converter Tools</div>
+                <div class="sidebar-items collapsed">
+                    <div class="sidebar-item" onclick="switchTool('converter-xml-json')">🔄 XML ↔ JSON</div>
+                    <div class="sidebar-item" onclick="switchTool('converter-json-xml')">🔄 JSON ↔ XML</div>
+                    <div class="sidebar-item" onclick="switchTool('converter-json-csv')">📊 JSON → CSV</div>
+                    <div class="sidebar-item" onclick="switchTool('converter-csv-json')">📊 CSV → JSON</div>
+                    <div class="sidebar-item" onclick="switchTool('converter-change-case')">🔤 Change Case</div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title collapsed" onclick="toggleSection(this)">Security Tools</div>
+                <div class="sidebar-items collapsed">
+                    <div class="sidebar-item" onclick="switchTool('security-encrypt')">🔒 Encrypt Text</div>
+                    <div class="sidebar-item" onclick="switchTool('security-decrypt')">🔓 Decrypt Text</div>
+                    <div class="sidebar-item" onclick="switchTool('security-keygen')">🔑 Generate Key</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Toolbar -->
+            <div class="toolbar" id="toolbar">
+                <button class="btn btn-primary" onclick="formatXML()">✨ Format</button>
+                <button class="btn" onclick="validateXML()">✓ Validate</button>
+                <button class="btn" onclick="getXMLTree()">🌳 Tree</button>
+                <button class="btn" onclick="xmlToJSON()">🔀 XML to JSON</button>
+                <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+            </div>
+
+            <!-- XPath Bar (hidden by default, shown for XPath tool) -->
+            <div class="xpath-bar" id="xpathBar" style="display: none;">
+                <input type="text" id="xpathInput" placeholder="Enter XPath expression (e.g., //book/title) or value to search (e.g., 1977-05-07)">
+                <button class="btn btn-primary" onclick="executeXPath()">▶ Run XPath</button>
+                <button class="btn" onclick="findByValue()">🎯 Find by Value</button>
+            </div>
+
+            <!-- Regex Pattern Bar (hidden by default, shown for regex-test tool) -->
+            <div class="xpath-bar" id="regexPatternBar" style="display: none;">
+                <input type="text" id="regexPatternInput" placeholder="Enter regex pattern (e.g., ^\d{3}-\d{2}-\d{4}$)">
+                <button class="btn btn-primary" onclick="testRegex()">🧪 Test Pattern</button>
+                <button class="btn" onclick="validateRegex()">✓ Validate</button>
+            </div>
+
+            <!-- Security Key Bar (hidden by default, shown for security tools) -->
+            <div class="xpath-bar" id="securityKeyBar" style="display: none;">
+                <input type="password" id="securityKeyInput" placeholder="Enter encryption/decryption key">
+                <button class="btn" onclick="toggleKeyVisibility()">👁️ Show/Hide</button>
+            </div>
+
+            <!-- Split Panes -->
+            <div class="split-container">
+                <div class="pane">
+                    <div class="pane-header" id="inputHeader">
+                        Paste XML
+                    </div>
+                    <div class="pane-content">
+                        <textarea id="inputArea" placeholder="Paste your XML content here...">
+<?xml version='1.0' encoding='UTF-8'?>
+<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+    <env:Body>
+        <wd:Change_Personal_Information_Response xmlns:wd="urn:com.workday/bsvc" wd:version="v46.0">
+            <wd:Personal_Information_Change_Event_Reference>
+                <wd:ID wd:type="WID">cde9b180312c1000b6de497edf430000</wd:ID>
+            </wd:Personal_Information_Change_Event_Reference>
+            <wd:Personal_Information_Data>
+                <wd:Date_of_Birth>1977-05-07</wd:Date_of_Birth>
+            </wd:Personal_Information_Data>
+        </wd:Change_Personal_Information_Response>
+    </env:Body>
+</env:Envelope></textarea>
+                    </div>
+                </div>
+
+                <div class="resizer"></div>
+
+                <div class="pane">
+                    <div class="pane-header">
+                        Result
+                        <button class="copy-btn" onclick="copyResult()">📋 Copy</button>
+                    </div>
+                    <div class="pane-content">
+                        <div class="result-display" id="resultArea">Results will appear here...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <span>Crafted by <strong>Sourav Paul & Kaushal Rajput</strong></span>
+        <span>•</span>
+        <span>with help of
+            <img src="/static/eye.svg" alt="I" style="vertical-align: middle; margin: 0 2px;">
+            <img src="/static/bee.svg" alt="B" style="vertical-align: middle; margin: 0 2px;">
+            <img src="/static/M.svg" alt="M" style="vertical-align: middle; margin: 0 2px;">
+            
+        </span>
+        <span>•</span>
+        <span><img src="/static/bob.jpeg" alt="M" style="vertical-align: middle;margin: 0 2px;height: 20px;">
+            (Bob)</span>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentTool = 'xml-basic';
+
+        // Toggle sidebar section collapse/expand
+        function toggleSection(titleElement) {
+            const itemsContainer = titleElement.nextElementSibling;
+            const isCollapsed = itemsContainer.classList.contains('collapsed');
+
+            if (isCollapsed) {
+                itemsContainer.classList.remove('collapsed');
+                titleElement.classList.remove('collapsed');
+            } else {
+                itemsContainer.classList.add('collapsed');
+                titleElement.classList.add('collapsed');
+            }
+        }
+
+        // Helper function to format results with metadata and code
+        function formatResultWithMetadata(metadata, code, codeTitle = 'Generated Pattern') {
+            const resultArea = document.getElementById('resultArea');
+
+            let html = '';
+
+            // Add metadata section if provided
+            if (metadata && Object.keys(metadata).length > 0) {
+                html += '<div class="result-metadata">';
+                for (const [key, value] of Object.entries(metadata)) {
+                    const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    let valueClass = 'result-metadata-value';
+
+                    // Add special classes for certain values
+                    if (value === 'YES' || value === '✓ YES' || value === true) {
+                        valueClass += ' success';
+                    } else if (value === 'HIGH') {
+                        valueClass += ' high';
+                    }
+
+                    html += `<div class="result-metadata-line">`;
+                    html += `<span class="result-metadata-label">${label}:</span> `;
+                    html += `<span class="${valueClass}">${value}</span>`;
+                    html += `</div>`;
+                }
+                html += '</div>';
+            }
+
+            // Add code block if provided
+            if (code) {
+                html += '<div class="result-code-block">';
+                html += `<div class="result-code-title">${codeTitle}</div>`;
+                html += `<div class="result-code">${escapeHtml(code)}</div>`;
+                html += '</div>';
+            }
+
+            resultArea.innerHTML = html;
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Helper function to display plain text results
+        function displayPlainResult(text) {
+            const resultArea = document.getElementById('resultArea');
+            resultArea.innerHTML = `<pre style="margin: 0; color: #d4d4d4;">${escapeHtml(text)}</pre>`;
+        }
+
+        function switchTool(tool) {
+            const previousTool = currentTool;
+            currentTool = tool;
+
+            // Update sidebar - find and activate the clicked item
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+                // Check if this item's onclick matches the current tool
+                const onclickAttr = item.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes(`'${tool}'`)) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Update toolbar based on tool
+            updateToolbar(tool);
+
+            // Show/hide XPath bar
+            const xpathBar = document.getElementById('xpathBar');
+            xpathBar.style.display = tool === 'xml-xpath' ? 'flex' : 'none';
+
+            // Show/hide Regex Pattern bar
+            const regexPatternBar = document.getElementById('regexPatternBar');
+            regexPatternBar.style.display = tool === 'regex-test' ? 'flex' : 'none';
+
+            // Show/hide Security Key bar
+            const securityKeyBar = document.getElementById('securityKeyBar');
+            securityKeyBar.style.display = (tool === 'security-encrypt' || tool === 'security-decrypt') ? 'flex' : 'none';
+
+            // Clear content when switching to any different tool
+            if (previousTool !== tool) {
+                document.getElementById('inputArea').value = '';
+                document.getElementById('resultArea').innerHTML = '<pre style="margin: 0; color: #d4d4d4;">Results will appear here...</pre>';
+            }
+
+            // Update placeholders
+            updatePlaceholders(tool);
+        }
+
+        function updateToolbar(tool) {
+            const toolbar = document.getElementById('toolbar');
+
+            if (tool.startsWith('xml')) {
+                toolbar.innerHTML = `
+                    <button class="btn btn-primary" onclick="formatXML()">✨ Format</button>
+                    <button class="btn" onclick="validateXML()">✓ Validate</button>
+                    <button class="btn" onclick="getXMLTree()">🌳 Tree</button>
+                    <button class="btn" onclick="xmlToJSON()">🔀 XML to JSON</button>
+                    <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                    <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                `;
+            } else if (tool.startsWith('json')) {
+                if (tool === 'json-path') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="executeJSONPath()">▶ Execute</button>
+                        <button class="btn" onclick="validateJSON()">✓ Validate</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                } else if (tool === 'json-diff') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="compareJSON()">🔄 Compare</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                } else {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="formatJSON()">✨ Format</button>
+                        <button class="btn" onclick="validateJSON()">✓ Validate</button>
+                        <button class="btn" onclick="minifyJSON()">📦 Minify</button>
+                        <button class="btn" onclick="generateSchema()">📐 Schema</button>
+                        <button class="btn" onclick="getJSONSize()">📏 Size</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                }
+            } else if (tool.startsWith('regex')) {
+                if (tool === 'regex-test') {
+                    toolbar.innerHTML = `
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                } else if (tool === 'regex-explain') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="explainRegex()">📖 Explain</button>
+                        <button class="btn" onclick="validateRegex()">✓ Validate</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                } else if (tool === 'regex-generate') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="generateFromExamples()">🔧 Generate</button>
+                        <input type="text" id="allowedCharsInput" placeholder="Allowed chars (e.g., .,_-)"
+                               style="width: 180px; padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px; margin: 0 8px; font-size: 13px;"
+                               title="Enter comma-separated special characters to allow in the pattern">
+                        <input type="text" id="excludedWordsInput" placeholder="Excluded words (e.g., test,admin)"
+                               style="width: 200px; padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px; margin: 0 8px; font-size: 13px;"
+                               title="Enter comma-separated words to exclude from matching (case-insensitive)">
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                } else if (tool === 'regex-common') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="loadCommonPatterns()">📚 Load Patterns</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                }
+            } else if (tool.startsWith('converter')) {
+                if (tool === 'converter-xml-json') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="convertXMLToJSON()">🔄 Convert to JSON</button>
+                        <button class="btn" onclick="useSampleData('xml')">📝 Use Sample XML</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                } else if (tool === 'converter-json-xml') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="convertJSONToXML()">🔄 Convert to XML</button>
+                        <button class="btn" onclick="useSampleData('json')">📝 Use Sample JSON</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                } else if (tool === 'converter-json-csv') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="convertJSONToCSV()">📊 Convert to CSV</button>
+                        <button class="btn" onclick="useSampleData('json')">📝 Use Sample JSON</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                } else if (tool === 'converter-csv-json') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="convertCSVToJSON()">📊 Convert to JSON</button>
+                        <button class="btn" onclick="useSampleData('csv')">📝 Use Sample CSV</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                } else if (tool === 'converter-change-case') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="convertToLowerCase()">🔤 Lower Case</button>
+                        <button class="btn btn-primary" onclick="convertToUpperCase()">🔤 UPPER CASE</button>
+                        <button class="btn btn-primary" onclick="convertToProperCase()">🔤 Proper Case</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                }
+            } else if (tool.startsWith('security')) {
+                if (tool === 'security-encrypt') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="encryptText()">🔒 Encrypt</button>
+                        <button class="btn" onclick="useSampleSecurity()">📝 Use Sample</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                } else if (tool === 'security-decrypt') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="decryptText()">🔓 Decrypt</button>
+                        <button class="btn" onclick="useSampleSecurity()">📝 Use Sample</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                } else if (tool === 'security-keygen') {
+                    toolbar.innerHTML = `
+                        <button class="btn btn-primary" onclick="generateEncryptionKey()">🔑 Generate Key</button>
+                        <button class="btn" onclick="copyResult()">📋 Copy Result</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                    `;
+                }
+            }
+        }
+
+        function updatePlaceholders(tool) {
+            const inputArea = document.getElementById('inputArea');
+            const resultArea = document.getElementById('resultArea');
+            const inputHeader = document.getElementById('inputHeader');
+
+            if (tool.startsWith('xml')) {
+                inputHeader.textContent = 'Paste XML';
+                inputArea.placeholder = 'Paste your XML content here...';
+            } else if (tool === 'json-path') {
+                inputHeader.textContent = 'JSONPath & JSON';
+                inputArea.placeholder = 'Enter JSONPath query on first line, then JSON content on following lines...\nExample:\n$.store.book[*].title\n{"store": {"book": [{"title": "Book 1"}]}}';
+            } else if (tool === 'json-diff') {
+                inputHeader.textContent = 'Two JSON Objects';
+                inputArea.placeholder = 'Enter first JSON object, then --- separator, then second JSON object...\nExample:\n{"name": "John", "age": 30}\n---\n{"name": "John", "age": 31}';
+            } else if (tool.startsWith('json')) {
+                inputHeader.textContent = 'Paste JSON';
+                inputArea.placeholder = 'Paste your JSON content here...';
+            } else if (tool === 'regex-test') {
+                inputHeader.textContent = 'Test Strings';
+                inputArea.placeholder = 'Enter test strings to match against the pattern...\nExample:\n123-45-6789\n123-456-7890\nabc-def-ghij';
+            } else if (tool === 'regex-explain') {
+                inputHeader.textContent = 'Regex Pattern';
+                inputArea.placeholder = 'Enter regex pattern to explain...\nExample: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
+            } else if (tool === 'regex-generate') {
+                inputHeader.textContent = 'Example Strings (One Per Line)';
+                inputArea.placeholder = 'Enter multiple example strings (one per line) to generate a regex pattern...\n\nExamples:\n\nFor emails:\njohn@example.com\njane@test.org\nuser@domain.net\n\nFor phone numbers:\n123-456-7890\n987-654-3210\n555-123-4567\n\nFor dates:\n2024-01-15\n2024-12-31\n2023-06-20';
+            } else if (tool === 'regex-common') {
+                inputHeader.textContent = 'Common Patterns';
+                inputArea.placeholder = 'Common regex patterns will be displayed in the result area...';
+            } else if (tool === 'converter-xml-json') {
+                inputHeader.textContent = 'Paste XML';
+                inputArea.placeholder = 'Paste your XML content here or click "Use Sample XML" button...';
+            } else if (tool === 'converter-json-xml') {
+                inputHeader.textContent = 'Paste JSON';
+                inputArea.placeholder = 'Paste your JSON content here or click "Use Sample JSON" button...';
+            } else if (tool === 'converter-json-csv') {
+                inputHeader.textContent = 'Paste JSON Array';
+                inputArea.placeholder = 'Paste your JSON array of objects here or click "Use Sample JSON" button...\nExample:\n[{"id": 1, "name": "John"}, {"id": 2, "name": "Jane"}]';
+            } else if (tool === 'converter-csv-json') {
+                inputHeader.textContent = 'Paste CSV';
+                inputArea.placeholder = 'Paste your CSV content here or click "Use Sample CSV" button...\nExample:\nid,name,email\n1,John,john@example.com\n2,Jane,jane@example.com';
+            } else if (tool === 'converter-change-case') {
+                inputHeader.textContent = 'Paste Text';
+                inputArea.placeholder = 'Paste your text here to convert case...\nExample:\nHello World\nThis is a TEST\nProper Case Example';
+            } else if (tool === 'security-encrypt') {
+                inputHeader.textContent = 'Text to Encrypt';
+                inputArea.placeholder = 'Enter the text you want to encrypt...\nExample:\nThis is my secret message that needs to be protected.';
+            } else if (tool === 'security-decrypt') {
+                inputHeader.textContent = 'Encrypted Text';
+                inputArea.placeholder = 'Paste the encrypted text here...\nExample:\ngAAAAABm...(encrypted text)';
+            } else if (tool === 'security-keygen') {
+                inputHeader.textContent = 'Key Generation';
+                inputArea.placeholder = 'Click "Generate Key" button to create a random encryption key...';
+            }
+
+            resultArea.textContent = 'Results will appear here...';
+        }
+
+        let loadingTimeout;
+
+        function showLoading() {
+            // Only show loading if operation takes more than 200ms
+            loadingTimeout = setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.add('show');
+            }, 200);
+        }
+
+        function hideLoading() {
+            clearTimeout(loadingTimeout);
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function clearAll() {
+            document.getElementById('inputArea').value = '';
+            document.getElementById('resultArea').textContent = 'Results will appear here...';
+            showToast('✓ Cleared');
+        }
+
+        function copyResult() {
+            const resultArea = document.getElementById('resultArea');
+            // Get text content, handling both HTML and plain text
+            const result = resultArea.innerText || resultArea.textContent;
+            navigator.clipboard.writeText(result).then(() => {
+                showToast('✓ Copied to clipboard!');
+            }).catch(() => {
+                showToast('✗ Failed to copy', 'error');
+            });
+        }
+
+        // XML Functions
+        async function formatXML() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter XML content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/format', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        xml_content: input,
+                        indent: 2,
+                        encoding: 'utf-8',
+                        xml_declaration: true
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    displayPlainResult(data.formatted_xml);
+                    showToast('✓ XML formatted successfully!');
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + ((data.detail && data.detail.message) || data.detail);
+                    showToast('✗ Formatting failed', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function validateXML() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter XML content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        xml_content: input
+                    })
+                });
+
+                const data = await response.json();
+                if (data.is_valid) {
+                    displayPlainResult('✓ XML is valid!\n\nYour XML is well-formed and valid.');
+                    showToast('✓ XML is valid!');
+                } else {
+                    displayPlainResult('✗ XML is invalid\n\n' + (data.error || 'Validation failed'));
+                    showToast('✗ XML is invalid', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function getXMLTree() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter XML content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/tree/structure', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        xml_content: input
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    displayPlainResult(JSON.stringify(data.tree, null, 2));
+                    showToast('✓ Tree structure generated!');
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + data.detail;
+                    showToast('✗ Failed to generate tree', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function xmlToJSON() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter XML content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/convert/to-json', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        xml_content: input
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    displayPlainResult(data.json_content);
+                    showToast('✓ Converted to JSON!');
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + data.detail;
+                    showToast('✗ Conversion failed', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function executeXPath() {
+            const input = document.getElementById('inputArea').value;
+            const xpath = document.getElementById('xpathInput').value;
+
+            if (!input.trim() || !xpath.trim()) {
+                showToast('⚠️ Please enter both XML and XPath', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/xpath/execute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        xml_content: input,
+                        xpath_query: xpath
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const metadata = {
+                        'XPath Query': xpath,
+                        'Match Count': data.match_count
+                    };
+
+                    const matchesCode = JSON.stringify(data.matches, null, 2);
+                    formatResultWithMetadata(metadata, matchesCode, 'Matches');
+                    showToast(`✓ Found ${data.match_count} matches!`);
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + data.detail;
+                    showToast('✗ XPath execution failed', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function findByValue() {
+            const input = document.getElementById('inputArea').value;
+            const searchValue = document.getElementById('xpathInput').value;
+
+            if (!input.trim() || !searchValue.trim()) {
+                showToast('⚠️ Please enter both XML and search value', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/xml/xpath/find-by-value', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        xml_content: input,
+                        search_value: searchValue
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok && data.matches && data.matches.length > 0) {
+                    const metadata = {
+                        'Search Value': `"${searchValue}"`,
+                        'Match Count': data.match_count
+                    };
+
+                    let matchesText = '';
+                    data.matches.forEach((match, idx) => {
+                        matchesText += `Match ${idx + 1}:\n`;
+                        matchesText += `  Standard XPath: ${match.xpath}\n`;
+                        matchesText += `  Local-name XPath: ${match.xpath_local_name}\n`;
+                        matchesText += `  Element: <${match.tag}>\n`;
+                        matchesText += `  Value: ${match.text}\n\n`;
+                    });
+
+                    formatResultWithMetadata(metadata, matchesText, 'XPath Results');
+                    showToast(`✓ Found ${data.match_count} XPath(s)!`);
+                } else {
+                    document.getElementById('resultArea').textContent = `No XPath found for value: ${searchValue}`;
+                    showToast('✗ No matches found', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // JSON Functions
+        async function formatJSON() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter JSON content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/format', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        json_content: input,
+                        indent: 2,
+                        sort_keys: false
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    displayPlainResult(data.formatted_json);
+                    showToast('✓ JSON formatted successfully!');
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + data.detail;
+                    showToast('✗ Formatting failed', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function validateJSON() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter JSON content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        json_content: input
+                    })
+                });
+
+                const data = await response.json();
+                if (data.is_valid) {
+                    displayPlainResult('✓ JSON is valid!\n\nYour JSON is well-formed and valid.');
+                    showToast('✓ JSON is valid!');
+                } else {
+                    displayPlainResult('✗ JSON is invalid\n\n' + (data.error || 'Validation failed'));
+                    showToast('✗ JSON is invalid', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function minifyJSON() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter JSON content', 'error');
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                const minified = JSON.stringify(parsed);
+                displayPlainResult(minified);
+                showToast('✓ JSON minified!');
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Invalid JSON', 'error');
+            }
+        }
+
+        async function generateSchema() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter JSON content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/schema/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        json_content: input
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    displayPlainResult(JSON.stringify(data.schema, null, 2));
+                    showToast('✓ Schema generated!');
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + data.detail;
+                    showToast('✗ Schema generation failed', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function getJSONSize() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter JSON content', 'error');
+                return;
+            }
+
+            try {
+                // Validate JSON first
+                const parsed = JSON.parse(input);
+
+                // Calculate sizes
+                const bytes = new Blob([input]).size;
+                const kb = (bytes / 1024).toFixed(2);
+                const mb = (bytes / (1024 * 1024)).toFixed(2);
+
+                // Count keys and depth
+                const matches = JSON.stringify(parsed).match(/"/g);
+                const keyCount = matches ? matches.length / 2 : 0;
+                const depth = getJSONDepth(parsed);
+
+                let output = `JSON Size Analysis\n\n`;
+                output += `Size:\n`;
+                output += `  ${bytes} bytes\n`;
+                output += `  ${kb} KB\n`;
+                output += `  ${mb} MB\n\n`;
+                output += `Structure:\n`;
+                output += `  Keys: ${Math.floor(keyCount)}\n`;
+                output += `  Max Depth: ${depth}\n`;
+                output += `  Type: ${Array.isArray(parsed) ? 'Array' : 'Object'}\n`;
+
+                if (Array.isArray(parsed)) {
+                    output += `  Array Length: ${parsed.length}\n`;
+                }
+
+                displayPlainResult(output);
+                showToast('✓ Size calculated!');
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: Invalid JSON\n\n' + error.message;
+                showToast('✗ Invalid JSON', 'error');
+            }
+        }
+
+        function getJSONDepth(obj, depth = 0) {
+            if (obj === null || typeof obj !== 'object') return depth;
+            const depths = Object.values(obj).map(v => getJSONDepth(v, depth + 1));
+            return depths.length > 0 ? Math.max(...depths) : depth;
+        }
+
+        async function executeJSONPath() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter JSON content and JSONPath query', 'error');
+                return;
+            }
+
+            const lines = input.trim().split('\n');
+            if (lines.length < 2) {
+                showToast('⚠️ Please enter JSONPath on first line and JSON on following lines', 'error');
+                return;
+            }
+
+            const jsonpath = lines[0];
+            const jsonContent = lines.slice(1).join('\n');
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/jsonpath/execute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        json_content: jsonContent,
+                        jsonpath_query: jsonpath
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const metadata = {
+                        'JSONPath': data.jsonpath_query,
+                        'Match Count': data.match_count
+                    };
+
+                    const resultCode = JSON.stringify(data.matches, null, 2);
+                    formatResultWithMetadata(metadata, resultCode, 'Matches');
+                    showToast(`✓ Found ${data.match_count} matches!`);
+                } else {
+                    displayPlainResult('Error: ' + data.detail);
+                    showToast('✗ JSONPath execution failed', 'error');
+                }
+            } catch (error) {
+                displayPlainResult('Error: ' + error.message);
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function compareJSON() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter two JSON objects separated by ---', 'error');
+                return;
+            }
+
+            const parts = input.split('---');
+            if (parts.length !== 2) {
+                showToast('⚠️ Please separate two JSON objects with ---', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/json/diff/compare', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        json1: parts[0].trim(),
+                        json2: parts[1].trim()
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const metadata = {
+                        'Are Equal': data.are_equal ? '✓ YES' : '✗ NO',
+                        'Changes': data.changes_count
+                    };
+
+                    let diffText = '';
+                    if (data.added && data.added.length > 0) {
+                        diffText += '➕ Added:\n' + JSON.stringify(data.added, null, 2) + '\n\n';
+                    }
+                    if (data.removed && data.removed.length > 0) {
+                        diffText += '➖ Removed:\n' + JSON.stringify(data.removed, null, 2) + '\n\n';
+                    }
+                    if (data.modified && data.modified.length > 0) {
+                        diffText += '🔄 Modified:\n' + JSON.stringify(data.modified, null, 2);
+                    }
+
+                    formatResultWithMetadata(metadata, diffText || 'No differences found', 'Differences');
+                    showToast('✓ Comparison complete!');
+                } else {
+                    displayPlainResult('Error: ' + data.detail);
+                    showToast('✗ Comparison failed', 'error');
+                }
+            } catch (error) {
+                displayPlainResult('Error: ' + error.message);
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Resizer functionality
+        const resizer = document.querySelector('.resizer');
+        const leftPane = document.querySelector('.pane:first-child');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+
+            const containerWidth = document.querySelector('.split-container').offsetWidth;
+            const newLeftWidth = (e.clientX - leftPane.offsetLeft) / containerWidth * 100;
+
+            if (newLeftWidth > 20 && newLeftWidth < 80) {
+                leftPane.style.flex = `0 0 ${newLeftWidth}%`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isResizing = false;
+            document.body.style.cursor = 'default';
+        });
+
+        // Regex Functions
+        async function testRegex() {
+            // Get pattern from separate input box
+            const patternInput = document.getElementById('regexPatternInput');
+            const pattern = patternInput ? patternInput.value.trim() : '';
+
+            // Get test strings from textarea
+            const testString = document.getElementById('inputArea').value.trim();
+
+            if (!pattern) {
+                showToast('⚠️ Please enter a regex pattern', 'error');
+                return;
+            }
+
+            if (!testString) {
+                showToast('⚠️ Please enter test strings', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/regex/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pattern: pattern,
+                        test_string: testString,
+                        operation: 'search'
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const metadata = {
+                        'Pattern': data.pattern,
+                        'Valid': data.is_valid ? '✓ YES' : '✗ NO',
+                        'Execution Time': `${data.execution_time_ms}ms`,
+                        'Result': data.result.matched ? '✓ MATCHED' : '✗ NO MATCH'
+                    };
+
+                    if (data.result.matched) {
+                        metadata['Match'] = `"${data.result.match}"`;
+                        if (data.result.start !== undefined) {
+                            metadata['Position'] = `${data.result.start}-${data.result.end}`;
+                        }
+                    } else if (data.result.failure_reason) {
+                        // Add failure reason to metadata
+                        metadata['Failure Reason'] = data.result.failure_reason;
+                    }
+
+                    let codeContent = '';
+                    if (data.result.matched && data.result.groups && data.result.groups.length > 0) {
+                        codeContent = 'Captured Groups:\n' + JSON.stringify(data.result.groups, null, 2);
+                    } else if (!data.result.matched && data.result.failure_reason) {
+                        codeContent = 'Why it failed:\n' + data.result.failure_reason;
+                    }
+
+                    formatResultWithMetadata(metadata, codeContent, codeContent ? (data.result.matched ? 'Captured Groups' : 'Failure Analysis') : null);
+                    showToast(data.result.matched ? '✓ Pattern matched!' : '✗ Pattern did not match');
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + (data.detail || data.error);
+                    showToast('✗ Test failed', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function validateRegex() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter a regex pattern', 'error');
+                return;
+            }
+
+            const pattern = input.trim().split('\n')[0];
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/regex/validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pattern: pattern
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const metadata = {
+                        'Pattern': data.pattern,
+                        'Valid': data.is_valid ? '✓ YES' : '✗ NO'
+                    };
+
+                    if (data.error) {
+                        metadata['Error'] = data.error;
+                    }
+
+                    if (data.groups_count > 0) {
+                        metadata['Capturing Groups'] = data.groups_count;
+                    }
+
+                    if (data.named_groups && data.named_groups.length > 0) {
+                        metadata['Named Groups'] = data.named_groups.join(', ');
+                    }
+
+                    let warningsText = '';
+                    if (data.warnings && data.warnings.length > 0) {
+                        warningsText = '⚠️ Warnings:\n' + data.warnings.map(w => `  - ${w}`).join('\n');
+                    }
+
+                    formatResultWithMetadata(metadata, warningsText, warningsText ? 'Warnings' : null);
+                    showToast(data.is_valid ? '✓ Pattern is valid!' : '✗ Pattern is invalid', data.is_valid ? 'success' : 'error');
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + data.detail;
+                    showToast('✗ Validation failed', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function explainRegex() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter a regex pattern', 'error');
+                return;
+            }
+
+            const pattern = input.trim().split('\n')[0];
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/regex/explain', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pattern: pattern
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok && data.is_valid) {
+                    const metadata = {
+                        'Pattern': data.pattern,
+                        'Complexity': data.complexity.toUpperCase(),
+                        'Summary': data.summary
+                    };
+
+                    let breakdown = 'Pattern Breakdown:\n\n';
+                    data.breakdown.forEach((comp, idx) => {
+                        breakdown += `${idx + 1}. ${comp.token} (${comp.type})\n`;
+                        breakdown += `   ${comp.explanation}\n\n`;
+                    });
+
+                    formatResultWithMetadata(metadata, breakdown, 'Pattern Breakdown');
+                    showToast('✓ Pattern explained!');
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + (data.error || data.detail);
+                    showToast('✗ Explanation failed', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function generateFromExamples() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter example strings', 'error');
+                return;
+            }
+
+            const examples = input.trim().split('\n').filter(line => line.trim());
+
+            // Get allowed characters if specified
+            const allowedCharsInput = document.getElementById('allowedCharsInput');
+            const allowedChars = allowedCharsInput ? allowedCharsInput.value.trim() : null;
+
+            // Get excluded words if specified
+            const excludedWordsInput = document.getElementById('excludedWordsInput');
+            const excludedWords = excludedWordsInput ? excludedWordsInput.value.trim() : null;
+
+            showLoading();
+            try {
+                const requestBody = {
+                    examples: examples
+                };
+                if (allowedChars) {
+                    requestBody.allowed_chars = allowedChars;
+                }
+                if (excludedWords) {
+                    requestBody.excluded_words = excludedWords;
+                }
+
+                const response = await fetch('/api/v1/regex/generate/from-examples', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    // Format with metadata and code
+                    const metadata = {
+                        'Pattern Type': data.pattern_type,
+                        'Confidence': data.confidence.toUpperCase(),
+                        'Matches All Examples': data.matches_all_examples ? '✓ YES' : '✗ NO',
+                        'Source': data.source
+                    };
+
+                    formatResultWithMetadata(metadata, data.pattern, 'Generated Pattern');
+                    showToast('✓ Pattern generated!');
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + data.detail;
+                    showToast('✗ Generation failed', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function loadCommonPatterns() {
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/regex/patterns/common');
+                const data = await response.json();
+
+                if (response.ok) {
+                    let output = `Common Regex Patterns (${data.count} total)\n\n`;
+
+                    Object.entries(data.patterns).forEach(([type, pattern]) => {
+                        output += `${type}:\n${pattern}\n\n`;
+                    });
+
+                    displayPlainResult(output);
+                    showToast('✓ Patterns loaded!');
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + data.detail;
+                    showToast('✗ Failed to load patterns', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function findAllMatches() {
+            const input = document.getElementById('inputArea').value;
+            if (!input.trim()) {
+                showToast('⚠️ Please enter regex pattern and text', 'error');
+                return;
+            }
+
+            const lines = input.trim().split('\n');
+            if (lines.length < 2) {
+                showToast('⚠️ Please enter pattern on first line and text on following lines', 'error');
+                return;
+            }
+
+            const pattern = lines[0];
+            const text = lines.slice(1).join('\n');
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/regex/find-all', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pattern: pattern,
+                        text: text
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok && data.is_valid) {
+                    let output = `Pattern: ${data.pattern}\n`;
+                    output += `Text Length: ${data.text_length} characters\n`;
+                    output += `Matches Found: ${data.matches_count}\n\n`;
+
+                    if (data.matches_count > 0) {
+                        data.matches.forEach((match, idx) => {
+                            output += `Match ${idx + 1}:\n`;
+                            output += `  Text: "${match.match}"\n`;
+                            output += `  Position: ${match.start}-${match.end}\n`;
+                            if (match.groups && match.groups.length > 0) {
+                                output += `  Groups: ${JSON.stringify(match.groups)}\n`;
+                            }
+                            output += `\n`;
+                        });
+                    } else {
+                        output += 'No matches found.\n';
+                    }
+
+                    displayPlainResult(output);
+                    showToast(`✓ Found ${data.matches_count} matches!`);
+                } else {
+                    document.getElementById('resultArea').textContent = 'Error: ' + (data.error || data.detail);
+                    showToast('✗ Search failed', 'error');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Error occurred', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // ==================== CONVERTER TOOLS ====================
+
+        // Use Sample Data
+        async function useSampleData(format) {
+            showLoading();
+            try {
+                const response = await fetch(`/api/v1/converter/sample/${format}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('inputArea').value = data.sample_data;
+                    showToast(`✓ Sample ${format.toUpperCase()} loaded`, 'success');
+                } else {
+                    throw new Error('Failed to load sample data');
+                }
+            } catch (error) {
+                showToast('✗ Failed to load sample data', 'error');
+                console.error('Error:', error);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // XML to JSON Converter
+        async function convertXMLToJSON() {
+            const xmlContent = document.getElementById('inputArea').value.trim();
+
+            if (!xmlContent) {
+                showToast('⚠ Please enter XML content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/converter/xml-to-json', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        xml_content: xmlContent,
+                        pretty: true,
+                        indent: 2,
+                        use_sample: false
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('resultArea').textContent = data.result;
+                    showToast('✓ Converted to JSON', 'success');
+                } else {
+                    throw new Error(data.message || 'Conversion failed');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Conversion failed', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // JSON to XML Converter
+        async function convertJSONToXML() {
+            const jsonContent = document.getElementById('inputArea').value.trim();
+
+            if (!jsonContent) {
+                showToast('⚠ Please enter JSON content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/converter/json-to-xml', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        json_content: jsonContent,
+                        root_tag: 'root',
+                        pretty: true,
+                        indent: 2,
+                        use_sample: false
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('resultArea').textContent = data.result;
+                    showToast('✓ Converted to XML', 'success');
+                } else {
+                    throw new Error(data.message || 'Conversion failed');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Conversion failed', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // JSON to CSV Converter
+        async function convertJSONToCSV() {
+            const jsonContent = document.getElementById('inputArea').value.trim();
+
+            if (!jsonContent) {
+                showToast('⚠ Please enter JSON content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/converter/json-to-csv', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        json_content: jsonContent,
+                        delimiter: ',',
+                        include_header: true,
+                        use_sample: false
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('resultArea').textContent = data.result;
+                    showToast('✓ Converted to CSV', 'success');
+                } else {
+                    throw new Error(data.message || 'Conversion failed');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Conversion failed', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // CSV to JSON Converter
+        async function convertCSVToJSON() {
+            const csvContent = document.getElementById('inputArea').value.trim();
+
+            if (!csvContent) {
+                showToast('⚠ Please enter CSV content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/converter/csv-to-json', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        csv_content: csvContent,
+                        delimiter: ',',
+                        pretty: true,
+                        indent: 2,
+                        use_sample: false
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('resultArea').textContent = data.result;
+                    showToast('✓ Converted to JSON', 'success');
+                } else {
+                    throw new Error(data.message || 'Conversion failed');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Conversion failed', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Text Case Converter Functions
+        async function convertToLowerCase() {
+            await convertCase('lower');
+        }
+
+        async function convertToUpperCase() {
+            await convertCase('upper');
+        }
+
+        async function convertToProperCase() {
+            await convertCase('proper');
+        }
+
+        async function convertCase(caseType) {
+            const textContent = document.getElementById('inputArea').value;
+
+            if (!textContent.trim()) {
+                showToast('⚠️ Please enter text content', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/converter/change-case', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text_content: textContent,
+                        case_type: caseType
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Display converted text with statistics
+                    const stats = data.statistics;
+                    let resultText = data.converted_text;
+
+                    // Add statistics at the top
+                    let statsText = '\n=== TEXT STATISTICS ===\n';
+                    statsText += `Characters: ${stats.characters}\n`;
+                    statsText += `Characters (no spaces): ${stats.characters_no_spaces}\n`;
+                    statsText += `Words: ${stats.words}\n`;
+                    statsText += `Lines: ${stats.lines}\n`;
+                    statsText += '======================\n\n';
+                    statsText += resultText;
+
+                    document.getElementById('resultArea').textContent = statsText;
+                    showToast(`✓ Converted to ${caseType} case`, 'success');
+                } else {
+                    throw new Error(data.message || 'Conversion failed');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Conversion failed', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // ==================== Security Tools ====================
+
+        async function encryptText() {
+            const text = document.getElementById('inputArea').value.trim();
+            const key = document.getElementById('securityKeyInput').value.trim();
+
+            if (!text) {
+                showToast('⚠️ Please enter text to encrypt', 'error');
+                return;
+            }
+
+            if (!key) {
+                showToast('⚠️ Please enter an encryption key', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/security/encrypt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        key: key
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let resultText = '=== ENCRYPTED TEXT ===\n\n';
+                    resultText += data.result;
+                    resultText += '\n\n=== INSTRUCTIONS ===\n';
+                    resultText += 'Copy the encrypted text above.\n';
+                    resultText += 'Use the same key to decrypt it later.\n';
+                    resultText += 'Keep your key secure!';
+
+                    document.getElementById('resultArea').textContent = resultText;
+                    showToast('✓ Text encrypted successfully', 'success');
+                } else {
+                    throw new Error(data.message || 'Encryption failed');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Encryption failed', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function decryptText() {
+            const encryptedText = document.getElementById('inputArea').value.trim();
+            const key = document.getElementById('securityKeyInput').value.trim();
+
+            if (!encryptedText) {
+                showToast('⚠️ Please enter encrypted text', 'error');
+                return;
+            }
+
+            if (!key) {
+                showToast('⚠️ Please enter the decryption key', 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/security/decrypt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        encrypted_text: encryptedText,
+                        key: key
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let resultText = '=== DECRYPTED TEXT ===\n\n';
+                    resultText += data.result;
+
+                    document.getElementById('resultArea').textContent = resultText;
+                    showToast('✓ Text decrypted successfully', 'success');
+                } else {
+                    throw new Error(data.message || 'Decryption failed');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Decryption failed - check your key', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function generateEncryptionKey() {
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/security/generate-key', {
+                    method: 'GET'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let resultText = '=== GENERATED ENCRYPTION KEY ===\n\n';
+                    resultText += data.key;
+                    resultText += '\n\n=== INSTRUCTIONS ===\n';
+                    resultText += '1. Copy this key and store it securely\n';
+                    resultText += '2. Use this key to encrypt your sensitive data\n';
+                    resultText += '3. You will need this exact key to decrypt later\n';
+                    resultText += '4. Never share your encryption key publicly';
+
+                    document.getElementById('resultArea').textContent = resultText;
+                    showToast('✓ Encryption key generated', 'success');
+                } else {
+                    throw new Error(data.message || 'Key generation failed');
+                }
+            } catch (error) {
+                document.getElementById('resultArea').textContent = 'Error: ' + error.message;
+                showToast('✗ Key generation failed', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function useSampleSecurity() {
+            showLoading();
+            try {
+                const response = await fetch('/api/v1/security/sample', {
+                    method: 'GET'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (currentTool === 'security-encrypt') {
+                        document.getElementById('inputArea').value = data.sample_text;
+                        document.getElementById('securityKeyInput').value = data.sample_key;
+                        showToast('✓ Sample data loaded', 'success');
+                    } else if (currentTool === 'security-decrypt') {
+                        document.getElementById('inputArea').value = data.sample_encrypted;
+                        document.getElementById('securityKeyInput').value = data.sample_key;
+                        showToast('✓ Sample encrypted data loaded', 'success');
+                    }
+                } else {
+                    throw new Error(data.message || 'Failed to load sample data');
+                }
+            } catch (error) {
+                showToast('✗ Failed to load sample data', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function toggleKeyVisibility() {
+            const keyInput = document.getElementById('securityKeyInput');
+            if (keyInput.type === 'password') {
+                keyInput.type = 'text';
+            } else {
+                keyInput.type = 'password';
+            }
+        }
+    </script>
+</body>
+
+</html>

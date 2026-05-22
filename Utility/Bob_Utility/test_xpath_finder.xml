@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    <book id="1">
+        <title>The Great Gatsby</title>
+        <author>F. Scott Fitzgerald</author>
+        <year>1925</year>
+        <isbn>978-0743273565</isbn>
+    </book>
+    <book id="2">
+        <title>To Kill a Mockingbird</title>
+        <author>Harper Lee</author>
+        <year>1960</year>
+        <isbn>978-0061120084</isbn>
+    </book>
+    <book id="3">
+        <title>1984</title>
+        <author>George Orwell</author>
+        <year>1949</year>
+        <isbn>978-0451524935</isbn>
+    </book>
+    <book id="4">
+        <title>Pride and Prejudice</title>
+        <author>Jane Austen</author>
+        <year>1813</year>
+        <isbn>978-0141439518</isbn>
+    </book>
+</library>
+
+<!-- Made with Bob -->

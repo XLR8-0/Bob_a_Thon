@@ -1,0 +1,73 @@
+# Minimal Working Requirements
+# These packages are confirmed to work without Visual Studio Build Tools
+
+# FastAPI and ASGI Server
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+
+# Pydantic for data validation
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# XML Processing
+lxml  # Pre-built wheels available
+xmltodict>=0.13.0
+
+# JSON Processing
+jsonpath-ng>=1.6.1
+
+# YAML Processing
+PyYAML  # Pre-built wheels available
+
+# Comparison and Diffing
+deepdiff>=6.7.1
+
+# Async File I/O
+aiofiles>=23.2.1
+
+# HTTP Client
+httpx>=0.26.0
+
+# Caching
+cachetools>=5.3.2
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Code Highlighting
+pygments>=2.17.2
+
+# Date/Time
+python-dateutil>=2.8.2
+
+# Utilities
+typing-extensions>=4.9.0
+
+# Successfully Installed Versions (as of last install):
+# fastapi==0.136.1
+# uvicorn==0.46.0
+# pydantic==2.13.4
+# pydantic-settings==2.0.3
+# lxml==6.1.0
+# xmltodict==1.0.4
+# jsonpath-ng==1.8.0
+# PyYAML==6.0.3
+# deepdiff==9.0.0
+# aiofiles==23.2.1
+# httpx==0.28.1
+# cachetools==7.1.1
+# python-dotenv==1.2.2
+# pygments==2.20.0
+# python-dateutil==2.9.0
+# typing-extensions==4.15.0
+
+# Note: The following require Visual Studio Build Tools and are NOT included:
+# - pandas (requires numpy compilation)
+# - streamlit (requires numpy compilation)
+# - regex (requires C compilation)
+# - ujson (requires C compilation)
+# - python-json-logger (removed - using standard logging)
+#
+# To install these, first install Visual Studio Build Tools, then:
+# pip install pandas streamlit regex ujson

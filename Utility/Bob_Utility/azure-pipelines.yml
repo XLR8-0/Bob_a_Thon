@@ -1,0 +1,122 @@
+# Azure DevOps Pipeline for CI/CD
+# Enterprise Payload Utility Toolkit
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  pythonVersion: '3.12'
+  azureSubscription: 'YOUR_AZURE_SUBSCRIPTION'  # Update this
+  webAppName: 'payload-toolkit-app'  # Update this
+  resourceGroup: 'payload-toolkit-rg'  # Update this
+
+stages:
+  - stage: Build
+    displayName: 'Build and Test'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Application'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+            displayName: 'Use Python $(pythonVersion)'
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            displayName: 'Install dependencies'
+
+          - script: |
+              pip install pytest pytest-cov
+              pytest tests/ --cov=app --cov-report=xml --cov-report=html
+            displayName: 'Run tests'
+            continueOnError: true
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFiles: '**/test-*.xml'
+              testRunTitle: 'Python $(pythonVersion)'
+            condition: succeededOrFailed()
+
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: Cobertura
+              summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
+            condition: succeededOrFailed()
+
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+              replaceExistingArchive: true
+            displayName: 'Archive files'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
+            displayName: 'Publish Artifact'
+
+  - stage: Deploy
+    displayName: 'Deploy to Azure'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: DeployWeb
+        displayName: 'Deploy to Azure App Service'
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appType: 'webAppLinux'
+                    appName: '$(webAppName)'
+                    package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+                    runtimeStack: 'PYTHON|3.12'
+                    startUpCommand: 'bash startup.sh'
+                  displayName: 'Deploy to Azure App Service'
+
+                - task: AzureAppServiceSettings@1
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appName: '$(webAppName)'
+                    resourceGroupName: '$(resourceGroup)'
+                    appSettings: |
+                      [
+                        {
+                          "name": "ENVIRONMENT",
+                          "value": "production",
+                          "slotSetting": false
+                        },
+                        {
+                          "name": "LOG_LEVEL",
+                          "value": "INFO",
+                          "slotSetting": false
+                        },
+                        {
+                          "name": "BACKEND_HOST",
+                          "value": "0.0.0.0",
+                          "slotSetting": false
+                        },
+                        {
+                          "name": "BACKEND_PORT",
+                          "value": "8000",
+                          "slotSetting": false
+                        }
+                      ]
+                  displayName: 'Configure App Settings'
+
+# Made with Bob

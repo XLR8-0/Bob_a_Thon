@@ -1,0 +1,64 @@
+# FastAPI and ASGI Server
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+
+# Pydantic for data validation
+pydantic>=2.5.3
+pydantic-settings>=2.1.0
+
+# XML Processing
+lxml>=5.1.0
+xmltodict>=0.13.0
+
+# JSON Processing
+jsonpath-ng>=1.6.1
+ujson>=5.9.0
+
+# YAML Processing
+PyYAML>=6.0.1
+
+# Comparison and Diffing
+deepdiff>=6.7.1
+
+# Data Processing (requires Visual Studio Build Tools on Windows)
+# pandas>=2.2.0
+
+# Regex (requires compilation on Windows)
+# regex>=2023.12.25
+
+# Async File I/O
+aiofiles>=23.2.1
+
+# HTTP Client
+httpx>=0.26.0
+
+# Caching
+cachetools>=5.3.2
+
+# Logging
+# python-json-logger>=2.0.7  # Removed - using standard logging instead
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Streamlit Frontend (requires Visual Studio Build Tools on Windows)
+# streamlit>=1.30.0
+# streamlit-ace>=0.1.1
+# streamlit-extras>=0.3.6
+
+# Code Highlighting
+pygments>=2.17.2
+
+# Date/Time
+python-dateutil>=2.8.2
+
+# Cryptography
+cryptography>=41.0.0
+
+# Utilities
+typing-extensions>=4.9.0
+
+# Note: Packages commented out require Visual Studio Build Tools for compilation
+# Install them separately if you have the build tools:
+# pip install pandas streamlit regex ujson
